@@ -53,13 +53,14 @@ function loadPDF(fileId) {
     showLoadingMessage();
 
     // Utilise l'URL de téléchargement direct du PDF
-    const fileUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-console.log (fileUrl);
-    fetch(fileUrl)
+   // const fileUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+console.log (fileId);
+    fetch(fileId)
         .then(response => response.blob())
         .then(blob => {
             const url = URL.createObjectURL(blob);
             pdfjsLib.getDocument(url).promise.then(function (pdf) {
+                console.log(pdf);
                 pdfDoc = pdf;
                 totalPages = pdf.numPages;
                 currentPage = 1;
