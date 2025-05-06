@@ -63,14 +63,15 @@ function loadPDF(fileId) {
                 return;
             }
 
-            const fileUrl = file.fileUrl;  // Récupérer l'URL du fichier (qui peut être un fileId ou une URL complète)
+            var fileUrl = file.fileUrl;  // Récupérer l'URL du fichier (qui peut être un fileId ou une URL complète)
             console.log("URL du fichier:", fileUrl);
 
             // Si l'URL est juste un fileId, créer l'URL complète pour Google Drive
             if (!fileUrl.startsWith('http')) {
                 fileUrl = `https://drive.google.com/uc?export=download&id=${fileUrl}`;
             }
-                console.log("URL du fichier:", fileUrl);
+               fileUrl= "./License.pdf";
+            console.log("URL du fichier:", fileUrl);
             // Charger le PDF à partir de l'URL
             pdfjsLib.getDocument(fileUrl).promise.then(function (pdf) {
                 pdfDoc = pdf;
