@@ -70,7 +70,7 @@ function loadPDF(fileId) {
             if (!fileUrl.startsWith('http')) {
                 fileUrl = `https://drive.google.com/uc?export=download&id=${fileUrl}`;
             }
-
+                console.log("URL du fichier:", fileUrl);
             // Charger le PDF à partir de l'URL
             pdfjsLib.getDocument(fileUrl).promise.then(function (pdf) {
                 pdfDoc = pdf;
