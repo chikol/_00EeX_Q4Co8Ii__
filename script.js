@@ -54,14 +54,22 @@ function loadPDF(fileId) {
 
     fetch(APPSCRIPT_URL + '?fileId=' + fileId)
         .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert(data.error);
+        .then(files => {
+            // Filtrer le fichier correspondant au fileId
+            const file = files.find(f => f.fileId == fileId);
+
+            if (!file) {
+                alert('Fichier non trouvé');
                 return;
             }
-            
-            const fileUrl = data.fileUrl;  // Récupérer l'URL complète depuis la réponse de l'API
+
+            const fileUrl = file.fileUrl;  // Récupérer l'URL du fichier (qui peut être un fileId ou une URL complète)
             console.log("URL du fichier:", fileUrl);
+
+            // Si l'URL est juste un fileId, créer l'URL complète pour Google Drive
+            if (!fileUrl.startsWith('http')) {
+                fileUrl = `https://drive.google.com/uc?export=download&id=${fileUrl}`;
+            }
 
             // Charger le PDF à partir de l'URL
             pdfjsLib.getDocument(fileUrl).promise.then(function (pdf) {
@@ -81,6 +89,7 @@ function loadPDF(fileId) {
             hideLoadingMessage();
         });
 }
+
 
 
 
