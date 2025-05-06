@@ -52,31 +52,41 @@ function fetchFiles() {
 function loadPDF(fileId) {
     showLoadingMessage();
 
-    // Utilise l'URL de téléchargement direct du PDF
-   // const fileUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-console.log (fileId);
-    fetch(fileId)
-        .then(response => response.blob())
-        .then(blob => {
-            const url = URL.createObjectURL(blob);
-            pdfjsLib.getDocument(url).promise.then(function (pdf) {
+    // Utiliser fetch pour obtenir l'URL du PDF à partir de Google Sheets avec le fileId
+    fetch(APPSCRIPT_URL + '?fileId=' + fileId)
+        .then(response => response.json())
+        .then(data => {
+            // Vérifier si l'URL existe dans les données reçues
+            const fileUrl = data.url;
+            if (!fileUrl) {
+                alert('URL du fichier non trouvée.');
+                return;
+            }
+
+            // Charger le PDF avec l'URL récupérée
+            pdfjsLib.getDocument(fileUrl).promise.then(function (pdf) {
                 console.log(pdf);
                 pdfDoc = pdf;
                 totalPages = pdf.numPages;
                 currentPage = 1;
                 renderPage(currentPage);
+
                 // Récupérer la progression actuelle depuis Google Sheets
                 getProgress(currentUserId, fileId);
+            }).catch(error => {
+                alert('Erreur lors du chargement du fichier PDF.');
+                console.error(error);
             });
         })
         .catch(error => {
-            alert('Erreur lors du chargement du fichier PDF.');
+            alert('Erreur lors de la récupération de l\'URL du fichier.');
             console.error(error);
         })
         .finally(() => {
             hideLoadingMessage();
         });
 }
+
 
 // 🔄 Affiche la page actuelle du PDF
 function renderPage(pageNum) {
