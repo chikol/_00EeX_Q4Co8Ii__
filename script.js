@@ -57,7 +57,12 @@ function loadPDF(fileId) {
         .then(response => response.json())
         .then(data => {
             // Vérifier si l'URL existe dans les données reçues
-            const fileUrl = data.url;
+            if (data.error) {
+                alert('Fichier non trouvé.');
+                return;
+            }
+
+            const fileUrl = data.fileUrl;
             if (!fileUrl) {
                 alert('URL du fichier non trouvée.');
                 return;
@@ -86,6 +91,7 @@ function loadPDF(fileId) {
             hideLoadingMessage();
         });
 }
+
 
 
 // 🔄 Affiche la page actuelle du PDF
