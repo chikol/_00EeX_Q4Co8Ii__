@@ -22,6 +22,8 @@ const files = [
     }
 ];
 
+console.log("cc");
+
 // ✅ URL du script Apps Script pour le suivi de progression
 const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwEz5JYSywYZXiG1kljdiBGHIs17bIq8jA64VZ1WSw31_AA50pEG92lyG6piVrGCL7U/exec';
 
