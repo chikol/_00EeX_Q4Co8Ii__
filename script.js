@@ -1,3 +1,6 @@
+// Spécifie le chemin du worker PDF.js
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js";
+
 const loadingMessage = document.getElementById('loading-message');
 const fileList = document.getElementById('file-list');
 const canvas = document.getElementById('pdf-canvas');
@@ -7,86 +10,37 @@ let currentPage = 1;
 let totalPages = 0;
 let scale = 1.5;
 let currentFileId = null;
+let currentUserId = '1'; // Remplacez par la logique d'identification de l'utilisateur
 
-// ✅ Liste statique des fichiers PDF
-const files = [
-    {
-        fileId: "1",
-        fileName: "Intelligence Emotionnelle",
-        fileUrl: "file:///C:/Users/aelghazi/Downloads/Noor-Book.com_intelligence-emotionnelle_Ar.pdf"
-    },
-    {
-        fileId: "2",
-        fileName: "Communication Non Violente",
-        fileUrl: "https://drive.google.com/u/0/drive-viewer/AKGpihbWB53LyOANdpeyMpTMus_l8NV_iwiUfJaVhDmxCOfjoZSW3xObFgS1ba1RMLN32Q-x8rX3as9ETXRgYJHz9QDvU8GSzK2BnuI=s1600-rw-v1"
-    }
-];
-
-console.log("cc");
-
-// ✅ URL du script Apps Script pour le suivi de progression
+// URL de l'API Google Apps Script
 const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwEz5JYSywYZXiG1kljdiBGHIs17bIq8jA64VZ1WSw31_AA50pEG92lyG6piVrGCL7U/exec';
 
-// 🔄 Affiche un message de chargement
+// Affiche le message de chargement
 function showLoadingMessage() {
     loadingMessage.style.display = 'block';
 }
 
+// Cache le message de chargement
 function hideLoadingMessage() {
     loadingMessage.style.display = 'none';
 }
 
-// 🔄 Affiche la liste des fichiers dans la liste déroulante
+// 🔄 Récupère la liste des fichiers PDF
 function fetchFiles() {
     showLoadingMessage();
 
-    files.forEach(file => {
-        const option = document.createElement('option');
-        option.value = file.fileId;
-        option.textContent = file.fileName;
-        fileList.appendChild(option);
-    });
-
-    hideLoadingMessage();
-}
-
-// 🔄 Charge et affiche le PDF avec la progression depuis Google Sheets
-function loadPDF(fileId) {
-    showLoadingMessage();
-
-    const selectedFile = files.find(f => f.fileId === fileId);
-    if (!selectedFile) {
-        alert("Fichier non trouvé !");
-        hideLoadingMessage();
-        return;
-    }
-
-    const userId = '1'; // Remplacez par un identifiant utilisateur réel
-
-    // Étape 1 : récupérer la progression
-    fetch(`${APPSCRIPT_URL}?fileId=${fileId}&userId=${userId}`)
+    fetch(APPSCRIPT_URL)
         .then(response => response.json())
-        .then(data => {
-            const savedPage = parseInt(data.progress) || 1;
-
-            // Étape 2 : charger le PDF
-            return fetch(selectedFile.fileUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error("Erreur réseau lors du chargement du PDF");
-                    return response.blob();
-                })
-                .then(blob => {
-                    const url = URL.createObjectURL(blob);
-                    return pdfjsLib.getDocument(url).promise.then(function (pdf) {
-                        pdfDoc = pdf;
-                        totalPages = pdf.numPages;
-                        currentPage = savedPage <= totalPages ? savedPage : 1;
-                        renderPage(currentPage);
-                    });
-                });
+        .then(files => {
+            files.forEach(file => {
+                const option = document.createElement('option');
+                option.value = file.fileId;
+                option.textContent = file.fileName;
+                fileList.appendChild(option);
+            });
         })
         .catch(error => {
-            alert('Erreur lors du chargement du fichier PDF ou de la progression.');
+            alert('Erreur lors du chargement des fichiers.');
             console.error(error);
         })
         .finally(() => {
@@ -94,13 +48,41 @@ function loadPDF(fileId) {
         });
 }
 
-// 🔄 Affiche une page spécifique du PDF
+// 🔄 Charge le PDF sélectionné
+function loadPDF(fileId) {
+    showLoadingMessage();
+
+    // Utilise l'URL de téléchargement direct du PDF
+    const fileUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+    fetch(fileUrl)
+        .then(response => response.blob())
+        .then(blob => {
+            const url = URL.createObjectURL(blob);
+            pdfjsLib.getDocument(url).promise.then(function (pdf) {
+                pdfDoc = pdf;
+                totalPages = pdf.numPages;
+                currentPage = 1;
+                renderPage(currentPage);
+                // Récupérer la progression actuelle depuis Google Sheets
+                getProgress(currentUserId, fileId);
+            });
+        })
+        .catch(error => {
+            alert('Erreur lors du chargement du fichier PDF.');
+            console.error(error);
+        })
+        .finally(() => {
+            hideLoadingMessage();
+        });
+}
+
+// 🔄 Affiche la page actuelle du PDF
 function renderPage(pageNum) {
     pdfDoc.getPage(pageNum).then(function (page) {
         const viewport = page.getViewport({ scale: scale });
         canvas.height = viewport.height;
         canvas.width = viewport.width;
-
         page.render({
             canvasContext: ctx,
             viewport: viewport,
@@ -108,7 +90,7 @@ function renderPage(pageNum) {
     });
 }
 
-// ▶️ Bouton "Charger le fichier PDF"
+// ▶️ Bouton "Charger PDF"
 document.getElementById('load-pdf').addEventListener('click', function () {
     const selectedFileId = fileList.value;
     if (selectedFileId) {
@@ -117,7 +99,7 @@ document.getElementById('load-pdf').addEventListener('click', function () {
     }
 });
 
-// ◀️▶️ Navigation entre les pages
+// ◀️▶️ Navigation PDF
 document.getElementById('prev').addEventListener('click', function () {
     if (currentPage > 1) {
         currentPage--;
@@ -132,20 +114,19 @@ document.getElementById('next').addEventListener('click', function () {
     }
 });
 
-// 💾 Sauvegarde de la progression dans Google Sheets
+// 💾 Sauvegarde de la progression
 document.getElementById('save-progress').addEventListener('click', function () {
     if (!currentFileId) return;
 
-    const userId = '1'; // À adapter
     const progress = currentPage;
 
     fetch(APPSCRIPT_URL, {
         method: 'POST',
         headers: {
-            'Content-Type': 'text/plain'
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            userId: userId,
+            userId: currentUserId,
             fileId: currentFileId,
             progress: progress
         })
@@ -160,5 +141,20 @@ document.getElementById('save-progress').addEventListener('click', function () {
     });
 });
 
-// ▶️ Initialisation au chargement de la page
+// 🔄 Récupère la progression depuis la feuille Google Sheets
+function getProgress(userId, fileId) {
+    fetch(APPSCRIPT_URL + '?userId=' + userId + '&fileId=' + fileId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.progress !== undefined) {
+                currentPage = data.progress;
+                renderPage(currentPage);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la récupération de la progression:', error);
+        });
+}
+
+// ▶️ Initialisation au chargement
 fetchFiles();
