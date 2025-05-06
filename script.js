@@ -13,7 +13,7 @@ const files = [
     {
         fileId: "1",
         fileName: "Intelligence Emotionnelle",
-        fileUrl: "https://drive.google.com/u/0/drive-viewer/AKGpihbWB53LyOANdpeyMpTMus_l8NV_iwiUfJaVhDmxCOfjoZSW3xObFgS1ba1RMLN32Q-x8rX3as9ETXRgYJHz9QDvU8GSzK2BnuI=s1600-rw-v1"
+        fileUrl: "file:///C:/Users/aelghazi/Downloads/Noor-Book.com_intelligence-emotionnelle_Ar.pdf"
     },
     {
         fileId: "2",
