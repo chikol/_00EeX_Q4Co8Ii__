@@ -18,7 +18,7 @@ const files = [
     {
         fileId: "2",
         fileName: "Communication Non Violente",
-        fileUrl: "https://tonsite.com/communication-non-violente.pdf"
+        fileUrl: "https://drive.google.com/u/0/drive-viewer/AKGpihbWB53LyOANdpeyMpTMus_l8NV_iwiUfJaVhDmxCOfjoZSW3xObFgS1ba1RMLN32Q-x8rX3as9ETXRgYJHz9QDvU8GSzK2BnuI=s1600-rw-v1"
     }
 ];
 
