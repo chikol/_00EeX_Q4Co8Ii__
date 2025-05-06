@@ -54,7 +54,7 @@ function loadPDF(fileId) {
 
     // Utilise l'URL de téléchargement direct du PDF
     const fileUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-
+console.log (fileUrl);
     fetch(fileUrl)
         .then(response => response.blob())
         .then(blob => {
