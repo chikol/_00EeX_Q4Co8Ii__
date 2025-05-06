@@ -52,39 +52,29 @@ function fetchFiles() {
 function loadPDF(fileId) {
     showLoadingMessage();
 
-    // Utiliser fetch pour obtenir l'URL du PDF à partir de Google Sheets avec le fileId
     fetch(APPSCRIPT_URL + '?fileId=' + fileId)
         .then(response => response.json())
         .then(data => {
-            // Vérifier si l'URL existe dans les données reçues
             if (data.error) {
-                alert('Fichier non trouvé.');
+                alert(data.error);
                 return;
             }
+            
+            const fileUrl = data.fileUrl;  // Récupérer l'URL complète depuis la réponse de l'API
+            console.log("URL du fichier:", fileUrl);
 
-            const fileUrl = data.fileUrl;
-            if (!fileUrl) {
-                alert('URL du fichier non trouvée.');
-                return;
-            }
-
-            // Charger le PDF avec l'URL récupérée
+            // Charger le PDF à partir de l'URL
             pdfjsLib.getDocument(fileUrl).promise.then(function (pdf) {
-                console.log(pdf);
                 pdfDoc = pdf;
                 totalPages = pdf.numPages;
                 currentPage = 1;
                 renderPage(currentPage);
-
                 // Récupérer la progression actuelle depuis Google Sheets
                 getProgress(currentUserId, fileId);
-            }).catch(error => {
-                alert('Erreur lors du chargement du fichier PDF.');
-                console.error(error);
             });
         })
         .catch(error => {
-            alert('Erreur lors de la récupération de l\'URL du fichier.');
+            alert('Erreur lors du chargement du fichier PDF.');
             console.error(error);
         })
         .finally(() => {
