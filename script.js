@@ -46,11 +46,10 @@ function fetchFiles() {
 function loadPDF(fileId) {
     showLoadingMessage();
 
-    // Ici, on suppose que le fichier PDF est directement accessible via l’URL
     fetch(`${APPSCRIPT_URL}?fileId=${fileId}`)
-        .then(response => response.json())
-        .then(data => {
-            const url = data.fileUrl;
+        .then(response => response.blob()) // 👈 convertit la réponse en blob
+        .then(blob => {
+            const url = URL.createObjectURL(blob); // 👈 crée une URL temporaire utilisable par pdf.js
             pdfjsLib.getDocument(url).promise.then(function (pdf) {
                 pdfDoc = pdf;
                 totalPages = pdf.numPages;
