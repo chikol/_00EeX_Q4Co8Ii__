@@ -22,13 +22,70 @@
     <div id="pdf-container">
         <canvas id="pdf-canvas"></canvas>
     </div>
+    <div class="div-bottom" id="div-bottom">
+        <div class="controls">
+            <button id="prev">Précédent</button>
+            <button id="next">Suivant</button>
+            <button id="prog" style="background-color: gray;margin: 0 auto;display: block;">Progress</button>
+            <button id="save-progress">Sauvegarder la progression</button>
+        </div>
 
-    <div class="controls">
-        <button id="prev">Précédent</button>
-        <button id="next">Suivant</button>
-        <button id="save-progress">Sauvegarder la progression</button>
+        <!-- Indicateur de progression -->
+
+        <div id="progress-container">
+            <p id="page-indicator" style="display:inline;" >Page: 1 / 0 </p>
+            <progress id="progress-bar" value="0" max="100"></progress>
+        </div>
     </div>
-
-    <script src="script.js"></script>
+    <div id="result"></div>
+    <div id="overlay">
+        <div id="overlay-content">
+          <div class="spinner"></div>
+          <div>Chargement en cours...</div>
+        </div>
+      </div>
+    <script src="script.js?v=1"></script>
+    <script>toggleOverlay(true);  // ⛔ Bloquer l'interface
+        document.getElementById('div-bottom').style.display = 'none';
+        document.getElementById('pdf-container').style.display = 'none';
+    </script>
+    
+    <style>
+        #overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.4); /* semi-transparent noir */
+          display: none;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          color: white;
+          font-size: 20px;
+        }
+      
+        .spinner {
+          border: 4px solid rgba(255, 255, 255, 0.3);
+          border-top: 4px solid white;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+          margin-right: 15px;
+        }
+      
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      
+        #overlay-content {
+          display: flex;
+          align-items: center;
+        }
+      </style>
+      
 </body>
 </html>
